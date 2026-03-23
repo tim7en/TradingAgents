@@ -153,7 +153,7 @@ class MessageBuffer:
 
     def update_report_section(self, section_name, content):
         if section_name in self.report_sections:
-            self.report_sections[section_name] = content
+            self.report_sections[section_name] = extract_content_string(content)
             self._update_current_report()
 
     def _update_current_report(self):
@@ -622,22 +622,26 @@ def save_report_to_disk(final_state, ticker: str, save_path: Path):
     # 1. Analysts
     analysts_dir = save_path / "1_analysts"
     analyst_parts = []
-    if final_state.get("market_report"):
+    market_report = extract_content_string(final_state.get("market_report"))
+    sentiment_report = extract_content_string(final_state.get("sentiment_report"))
+    news_report = extract_content_string(final_state.get("news_report"))
+    fundamentals_report = extract_content_string(final_state.get("fundamentals_report"))
+    if market_report:
         analysts_dir.mkdir(exist_ok=True)
-        (analysts_dir / "market.md").write_text(final_state["market_report"])
-        analyst_parts.append(("Market Analyst", final_state["market_report"]))
-    if final_state.get("sentiment_report"):
+        (analysts_dir / "market.md").write_text(market_report, encoding="utf-8")
+        analyst_parts.append(("Market Analyst", market_report))
+    if sentiment_report:
         analysts_dir.mkdir(exist_ok=True)
-        (analysts_dir / "sentiment.md").write_text(final_state["sentiment_report"])
-        analyst_parts.append(("Social Analyst", final_state["sentiment_report"]))
-    if final_state.get("news_report"):
+        (analysts_dir / "sentiment.md").write_text(sentiment_report, encoding="utf-8")
+        analyst_parts.append(("Social Analyst", sentiment_report))
+    if news_report:
         analysts_dir.mkdir(exist_ok=True)
-        (analysts_dir / "news.md").write_text(final_state["news_report"])
-        analyst_parts.append(("News Analyst", final_state["news_report"]))
-    if final_state.get("fundamentals_report"):
+        (analysts_dir / "news.md").write_text(news_report, encoding="utf-8")
+        analyst_parts.append(("News Analyst", news_report))
+    if fundamentals_report:
         analysts_dir.mkdir(exist_ok=True)
-        (analysts_dir / "fundamentals.md").write_text(final_state["fundamentals_report"])
-        analyst_parts.append(("Fundamentals Analyst", final_state["fundamentals_report"]))
+        (analysts_dir / "fundamentals.md").write_text(fundamentals_report, encoding="utf-8")
+        analyst_parts.append(("Fundamentals Analyst", fundamentals_report))
     if analyst_parts:
         content = "\n\n".join(f"### {name}\n{text}" for name, text in analyst_parts)
         sections.append(f"## I. Analyst Team Reports\n\n{content}")
@@ -647,60 +651,68 @@ def save_report_to_disk(final_state, ticker: str, save_path: Path):
         research_dir = save_path / "2_research"
         debate = final_state["investment_debate_state"]
         research_parts = []
-        if debate.get("bull_history"):
+        bull_history = extract_content_string(debate.get("bull_history"))
+        bear_history = extract_content_string(debate.get("bear_history"))
+        judge_decision = extract_content_string(debate.get("judge_decision"))
+        if bull_history:
             research_dir.mkdir(exist_ok=True)
-            (research_dir / "bull.md").write_text(debate["bull_history"])
-            research_parts.append(("Bull Researcher", debate["bull_history"]))
-        if debate.get("bear_history"):
+            (research_dir / "bull.md").write_text(bull_history, encoding="utf-8")
+            research_parts.append(("Bull Researcher", bull_history))
+        if bear_history:
             research_dir.mkdir(exist_ok=True)
-            (research_dir / "bear.md").write_text(debate["bear_history"])
-            research_parts.append(("Bear Researcher", debate["bear_history"]))
-        if debate.get("judge_decision"):
+            (research_dir / "bear.md").write_text(bear_history, encoding="utf-8")
+            research_parts.append(("Bear Researcher", bear_history))
+        if judge_decision:
             research_dir.mkdir(exist_ok=True)
-            (research_dir / "manager.md").write_text(debate["judge_decision"])
-            research_parts.append(("Research Manager", debate["judge_decision"]))
+            (research_dir / "manager.md").write_text(judge_decision, encoding="utf-8")
+            research_parts.append(("Research Manager", judge_decision))
         if research_parts:
             content = "\n\n".join(f"### {name}\n{text}" for name, text in research_parts)
             sections.append(f"## II. Research Team Decision\n\n{content}")
 
     # 3. Trading
-    if final_state.get("trader_investment_plan"):
+    trader_investment_plan = extract_content_string(final_state.get("trader_investment_plan"))
+    if trader_investment_plan:
         trading_dir = save_path / "3_trading"
         trading_dir.mkdir(exist_ok=True)
-        (trading_dir / "trader.md").write_text(final_state["trader_investment_plan"])
-        sections.append(f"## III. Trading Team Plan\n\n### Trader\n{final_state['trader_investment_plan']}")
+        (trading_dir / "trader.md").write_text(trader_investment_plan, encoding="utf-8")
+        sections.append(f"## III. Trading Team Plan\n\n### Trader\n{trader_investment_plan}")
 
     # 4. Risk Management
     if final_state.get("risk_debate_state"):
         risk_dir = save_path / "4_risk"
         risk = final_state["risk_debate_state"]
         risk_parts = []
-        if risk.get("aggressive_history"):
+        aggressive_history = extract_content_string(risk.get("aggressive_history"))
+        conservative_history = extract_content_string(risk.get("conservative_history"))
+        neutral_history = extract_content_string(risk.get("neutral_history"))
+        portfolio_decision = extract_content_string(risk.get("judge_decision"))
+        if aggressive_history:
             risk_dir.mkdir(exist_ok=True)
-            (risk_dir / "aggressive.md").write_text(risk["aggressive_history"])
-            risk_parts.append(("Aggressive Analyst", risk["aggressive_history"]))
-        if risk.get("conservative_history"):
+            (risk_dir / "aggressive.md").write_text(aggressive_history, encoding="utf-8")
+            risk_parts.append(("Aggressive Analyst", aggressive_history))
+        if conservative_history:
             risk_dir.mkdir(exist_ok=True)
-            (risk_dir / "conservative.md").write_text(risk["conservative_history"])
-            risk_parts.append(("Conservative Analyst", risk["conservative_history"]))
-        if risk.get("neutral_history"):
+            (risk_dir / "conservative.md").write_text(conservative_history, encoding="utf-8")
+            risk_parts.append(("Conservative Analyst", conservative_history))
+        if neutral_history:
             risk_dir.mkdir(exist_ok=True)
-            (risk_dir / "neutral.md").write_text(risk["neutral_history"])
-            risk_parts.append(("Neutral Analyst", risk["neutral_history"]))
+            (risk_dir / "neutral.md").write_text(neutral_history, encoding="utf-8")
+            risk_parts.append(("Neutral Analyst", neutral_history))
         if risk_parts:
             content = "\n\n".join(f"### {name}\n{text}" for name, text in risk_parts)
             sections.append(f"## IV. Risk Management Team Decision\n\n{content}")
 
         # 5. Portfolio Manager
-        if risk.get("judge_decision"):
+        if portfolio_decision:
             portfolio_dir = save_path / "5_portfolio"
             portfolio_dir.mkdir(exist_ok=True)
-            (portfolio_dir / "decision.md").write_text(risk["judge_decision"])
-            sections.append(f"## V. Portfolio Manager Decision\n\n### Portfolio Manager\n{risk['judge_decision']}")
+            (portfolio_dir / "decision.md").write_text(portfolio_decision, encoding="utf-8")
+            sections.append(f"## V. Portfolio Manager Decision\n\n### Portfolio Manager\n{portfolio_decision}")
 
     # Write consolidated report
     header = f"# Trading Analysis Report: {ticker}\n\nGenerated: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n"
-    (save_path / "complete_report.md").write_text(header + "\n\n".join(sections))
+    (save_path / "complete_report.md").write_text(header + "\n\n".join(sections), encoding="utf-8")
     return save_path / "complete_report.md"
 
 
@@ -711,14 +723,18 @@ def display_complete_report(final_state):
 
     # I. Analyst Team Reports
     analysts = []
-    if final_state.get("market_report"):
-        analysts.append(("Market Analyst", final_state["market_report"]))
-    if final_state.get("sentiment_report"):
-        analysts.append(("Social Analyst", final_state["sentiment_report"]))
-    if final_state.get("news_report"):
-        analysts.append(("News Analyst", final_state["news_report"]))
-    if final_state.get("fundamentals_report"):
-        analysts.append(("Fundamentals Analyst", final_state["fundamentals_report"]))
+    market_report = extract_content_string(final_state.get("market_report"))
+    sentiment_report = extract_content_string(final_state.get("sentiment_report"))
+    news_report = extract_content_string(final_state.get("news_report"))
+    fundamentals_report = extract_content_string(final_state.get("fundamentals_report"))
+    if market_report:
+        analysts.append(("Market Analyst", market_report))
+    if sentiment_report:
+        analysts.append(("Social Analyst", sentiment_report))
+    if news_report:
+        analysts.append(("News Analyst", news_report))
+    if fundamentals_report:
+        analysts.append(("Fundamentals Analyst", fundamentals_report))
     if analysts:
         console.print(Panel("[bold]I. Analyst Team Reports[/bold]", border_style="cyan"))
         for title, content in analysts:
@@ -728,41 +744,49 @@ def display_complete_report(final_state):
     if final_state.get("investment_debate_state"):
         debate = final_state["investment_debate_state"]
         research = []
-        if debate.get("bull_history"):
-            research.append(("Bull Researcher", debate["bull_history"]))
-        if debate.get("bear_history"):
-            research.append(("Bear Researcher", debate["bear_history"]))
-        if debate.get("judge_decision"):
-            research.append(("Research Manager", debate["judge_decision"]))
+        bull_history = extract_content_string(debate.get("bull_history"))
+        bear_history = extract_content_string(debate.get("bear_history"))
+        judge_decision = extract_content_string(debate.get("judge_decision"))
+        if bull_history:
+            research.append(("Bull Researcher", bull_history))
+        if bear_history:
+            research.append(("Bear Researcher", bear_history))
+        if judge_decision:
+            research.append(("Research Manager", judge_decision))
         if research:
             console.print(Panel("[bold]II. Research Team Decision[/bold]", border_style="magenta"))
             for title, content in research:
                 console.print(Panel(Markdown(content), title=title, border_style="blue", padding=(1, 2)))
 
     # III. Trading Team
-    if final_state.get("trader_investment_plan"):
+    trader_investment_plan = extract_content_string(final_state.get("trader_investment_plan"))
+    if trader_investment_plan:
         console.print(Panel("[bold]III. Trading Team Plan[/bold]", border_style="yellow"))
-        console.print(Panel(Markdown(final_state["trader_investment_plan"]), title="Trader", border_style="blue", padding=(1, 2)))
+        console.print(Panel(Markdown(trader_investment_plan), title="Trader", border_style="blue", padding=(1, 2)))
 
     # IV. Risk Management Team
     if final_state.get("risk_debate_state"):
         risk = final_state["risk_debate_state"]
         risk_reports = []
-        if risk.get("aggressive_history"):
-            risk_reports.append(("Aggressive Analyst", risk["aggressive_history"]))
-        if risk.get("conservative_history"):
-            risk_reports.append(("Conservative Analyst", risk["conservative_history"]))
-        if risk.get("neutral_history"):
-            risk_reports.append(("Neutral Analyst", risk["neutral_history"]))
+        aggressive_history = extract_content_string(risk.get("aggressive_history"))
+        conservative_history = extract_content_string(risk.get("conservative_history"))
+        neutral_history = extract_content_string(risk.get("neutral_history"))
+        portfolio_decision = extract_content_string(risk.get("judge_decision"))
+        if aggressive_history:
+            risk_reports.append(("Aggressive Analyst", aggressive_history))
+        if conservative_history:
+            risk_reports.append(("Conservative Analyst", conservative_history))
+        if neutral_history:
+            risk_reports.append(("Neutral Analyst", neutral_history))
         if risk_reports:
             console.print(Panel("[bold]IV. Risk Management Team Decision[/bold]", border_style="red"))
             for title, content in risk_reports:
                 console.print(Panel(Markdown(content), title=title, border_style="blue", padding=(1, 2)))
 
         # V. Portfolio Manager Decision
-        if risk.get("judge_decision"):
+        if portfolio_decision:
             console.print(Panel("[bold]V. Portfolio Manager Decision[/bold]", border_style="green"))
-            console.print(Panel(Markdown(risk["judge_decision"]), title="Portfolio Manager", border_style="blue", padding=(1, 2)))
+            console.print(Panel(Markdown(portfolio_decision), title="Portfolio Manager", border_style="blue", padding=(1, 2)))
 
 
 def update_research_team_status(status):
@@ -858,7 +882,7 @@ def extract_content_string(content):
             else (item.strip() if isinstance(item, str) else '')
             for item in content
         ]
-        result = ' '.join(t for t in text_parts if t and not is_empty(t))
+        result = '\n\n'.join(t for t in text_parts if t and not is_empty(t))
         return result if result else None
 
     return str(content).strip() if not is_empty(content) else None
@@ -1051,9 +1075,9 @@ def run_analysis():
             # Research Team - Handle Investment Debate State
             if chunk.get("investment_debate_state"):
                 debate_state = chunk["investment_debate_state"]
-                bull_hist = debate_state.get("bull_history", "").strip()
-                bear_hist = debate_state.get("bear_history", "").strip()
-                judge = debate_state.get("judge_decision", "").strip()
+                bull_hist = extract_content_string(debate_state.get("bull_history")) or ""
+                bear_hist = extract_content_string(debate_state.get("bear_history")) or ""
+                judge = extract_content_string(debate_state.get("judge_decision")) or ""
 
                 # Only update status when there's actual content
                 if bull_hist or bear_hist:
@@ -1074,9 +1098,10 @@ def run_analysis():
                     message_buffer.update_agent_status("Trader", "in_progress")
 
             # Trading Team
-            if chunk.get("trader_investment_plan"):
+            trader_investment_plan = extract_content_string(chunk.get("trader_investment_plan"))
+            if trader_investment_plan:
                 message_buffer.update_report_section(
-                    "trader_investment_plan", chunk["trader_investment_plan"]
+                    "trader_investment_plan", trader_investment_plan
                 )
                 if message_buffer.agent_status.get("Trader") != "completed":
                     message_buffer.update_agent_status("Trader", "completed")
@@ -1085,10 +1110,10 @@ def run_analysis():
             # Risk Management Team - Handle Risk Debate State
             if chunk.get("risk_debate_state"):
                 risk_state = chunk["risk_debate_state"]
-                agg_hist = risk_state.get("aggressive_history", "").strip()
-                con_hist = risk_state.get("conservative_history", "").strip()
-                neu_hist = risk_state.get("neutral_history", "").strip()
-                judge = risk_state.get("judge_decision", "").strip()
+                agg_hist = extract_content_string(risk_state.get("aggressive_history")) or ""
+                con_hist = extract_content_string(risk_state.get("conservative_history")) or ""
+                neu_hist = extract_content_string(risk_state.get("neutral_history")) or ""
+                judge = extract_content_string(risk_state.get("judge_decision")) or ""
 
                 if agg_hist:
                     if message_buffer.agent_status.get("Aggressive Analyst") != "completed":
@@ -1126,7 +1151,8 @@ def run_analysis():
 
         # Get final state and decision
         final_state = trace[-1]
-        decision = graph.process_signal(final_state["final_trade_decision"])
+        final_trade_decision = extract_content_string(final_state.get("final_trade_decision")) or ""
+        decision = graph.process_signal(final_trade_decision)
 
         # Update all agent statuses to completed
         for agent in message_buffer.agent_status:
