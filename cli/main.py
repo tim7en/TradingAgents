@@ -4,10 +4,7 @@ import typer
 from pathlib import Path
 from functools import wraps
 from rich.console import Console
-from dotenv import load_dotenv
 
-# Load environment variables from .env file
-load_dotenv()
 from rich.panel import Panel
 from rich.spinner import Spinner
 from rich.live import Live
@@ -23,12 +20,16 @@ from rich import box
 from rich.align import Align
 from rich.rule import Rule
 
+from tradingagents.env import load_project_env
 from tradingagents.graph.trading_graph import TradingAgentsGraph
 from tradingagents.default_config import DEFAULT_CONFIG
 from cli.models import AnalystType
 from cli.utils import *
 from cli.announcements import fetch_announcements, display_announcements
 from cli.stats_handler import StatsCallbackHandler
+
+# Load environment variables from .env or .env.example
+load_project_env(__file__)
 
 console = Console()
 
@@ -257,7 +258,7 @@ def update_display(layout, spinner_text=None, stats_handler=None, start_time=Non
     layout["header"].update(
         Panel(
             "[bold green]Welcome to TradingAgents CLI[/bold green]\n"
-            "[dim]© [Tauric Research](https://github.com/TauricResearch)[/dim]",
+            "[dim](c) [Tauric Research](https://github.com/TauricResearch)[/dim]",
             title="Welcome to TradingAgents",
             border_style="green",
             padding=(1, 2),
@@ -336,7 +337,7 @@ def update_display(layout, spinner_text=None, stats_handler=None, start_time=Non
             progress_table.add_row("", agent, status_cell)
 
         # Add horizontal line after each team
-        progress_table.add_row("─" * 20, "─" * 20, "─" * 20, style="dim")
+        progress_table.add_row("-" * 20, "-" * 20, "-" * 20, style="dim")
 
     layout["progress"].update(
         Panel(progress_table, title="Progress", border_style="cyan", padding=(1, 2))
@@ -469,7 +470,7 @@ def get_user_selections():
     welcome_content = f"{welcome_ascii}\n"
     welcome_content += "[bold green]TradingAgents: Multi-Agents LLM Financial Trading Framework - CLI[/bold green]\n\n"
     welcome_content += "[bold]Workflow Steps:[/bold]\n"
-    welcome_content += "I. Analyst Team → II. Research Team → III. Trader → IV. Risk Management → V. Portfolio Management\n\n"
+    welcome_content += "I. Analyst Team -> II. Research Team -> III. Trader -> IV. Risk Management -> V. Portfolio Management\n\n"
     welcome_content += (
         "[dim]Built by [Tauric Research](https://github.com/TauricResearch)[/dim]"
     )
@@ -1157,7 +1158,7 @@ def run_analysis():
         save_path = Path(save_path_str)
         try:
             report_file = save_report_to_disk(final_state, selections["ticker"], save_path)
-            console.print(f"\n[green]✓ Report saved to:[/green] {save_path.resolve()}")
+            console.print(f"\n[green]Saved report to:[/green] {save_path.resolve()}")
             console.print(f"  [dim]Complete report:[/dim] {report_file.name}")
         except Exception as e:
             console.print(f"[red]Error saving report: {e}[/red]")
